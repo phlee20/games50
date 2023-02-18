@@ -37,6 +37,8 @@ function PlayState:enter(params)
     -- init table of powerups
     self.powerups = {}
 
+    -- init bank of keys
+    self.keys = 0
 end
 
 function PlayState:update(dt)
@@ -69,16 +71,13 @@ function PlayState:update(dt)
             -- set powerup to be removed
             powerup.remove = true
             
-            -- TODO: trigger a sound effect
-
-            
             -- trigger powerup effect (change paddle size)
-            if powerup.type == 1 or powerup.type == 2 then
+            if powerup.type == pType['paddle-shrink'] or powerup.type == pType['paddle-grow'] then
                 self.paddle:change(powerup.type)
             end
 
             -- trigger powerup effect (spawn more balls)
-            if powerup.type == 4 then
+            if powerup.type == pType['balls'] then
                 for i = 1, 2 do
                     local newBall = Ball(math.random(7))
                     newBall:spawnBall(self.paddle)
@@ -87,11 +86,17 @@ function PlayState:update(dt)
             end
 
             -- trigger powerup effect (recovery heart)
-            if powerup.type == 3 then
+            if powerup.type == pType['heart'] then
                 self.health = math.min(3, self.health + 1)
                 gSounds['recover']:play()
             end
-            
+
+            -- trigger powerup effect (key drop)
+            if powerup.type == pType['key'] then
+                -- store upto 3 keys
+                self.keys = math.min(3, self.keys + 1)
+                gSounds['recover']:play()
+            end
         end
     end
 
@@ -131,15 +136,43 @@ function PlayState:update(dt)
             -- only check collision if we're in play
             if brick.inPlay and ball:collides(brick) then
 
-                -- add to score
-                self.score = self.score + (brick.tier * 200 + brick.color * 25)
+                -- bonus score for destroying locked brick and reset key
+                if brick.locked and self.keys > 0 then
+                    self.score = self.score + (brick.tier * 200 + brick.color * 25)
+                    self.keys = math.max(0, self.keys - 1)
+                    brick.locked = false
+                end
+                
+                if not brick.locked then
 
-                -- trigger the brick's hit function, which removes it from play
-                brick:hit()
+                    -- add to score
+                    self.score = self.score + (brick.tier * 200 + brick.color * 25)
 
-                -- trigger powerup chance on brick hit
-                if math.random(1) == 1 then
-                    table.insert(self.powerups, Powerup(brick.x + 8, brick.y + 16))
+                    -- trigger the brick's hit function, which removes it from play
+                    brick:hit()
+
+                    -- trigger powerup chance on brick hit (increasing probability in higher levels)
+                    if math.random(math.max(3, math.floor((60 - self.level) / 10))) == 1 then
+                        table.insert(self.powerups, Powerup(brick.x + 8, brick.y + 16))
+                        
+                        -- check for locked bricks
+                        local lockedExist = false
+
+                        for k, brick in pairs(self.bricks) do
+                            if brick.locked then
+                                lockedExist = true
+                            end
+                        end
+
+                        -- remove key powerup if no locked bricks in level or remove heart powerup if full health
+                        if (self.powerups[#self.powerups].type == pType['key'] and not lockedExist) or 
+                            (self.powerups[#self.powerups].type == pType['heart'] and self.health == 3) then
+                            table.remove(self.powerups, #self.powerups)
+                        end
+                    end
+                else
+                    -- skip brick hit and score if locked without key
+                    gSounds['wall-hit']:play()
                 end
 
                 -- if we have enough points, recover a point of health
@@ -289,6 +322,13 @@ function PlayState:render()
     -- render all powerups
     for k, powerup in pairs(self.powerups) do
         powerup:render()
+    end
+
+    -- render collected keys
+    if self.keys > 0 then
+        for i = 1, self.keys do
+            love.graphics.draw(gTextures['main'], gFrames['powerups'][pType['key']], 300 - 10 * i, 3, 0, 0.6, 0.6)
+        end
     end
 
     renderScore(self.score)

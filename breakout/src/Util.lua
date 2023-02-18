@@ -58,9 +58,9 @@ function GenerateQuadsBricks(atlas)
     -- index 24 is locked brick
     local bricks = table.slice(GenerateQuads(atlas, 32, 16), 1, 24)
 
-    -- remove tiles 22 and 23 which contain balls
+    -- remove tiles 22 and 23 which contain balls (both referenced)
     table.remove(bricks, 22)
-    table.remove(bricks, 23)
+    table.remove(bricks, 22)
     return bricks
 end
 

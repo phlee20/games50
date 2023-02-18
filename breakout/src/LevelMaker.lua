@@ -112,6 +112,11 @@ function LevelMaker.createMap(level)
                 b.tier = solidTier
             end 
 
+            -- override select bricks as locked brick on random
+            if level > 5 and math.random(25) == 1 then
+                b.locked = true
+            end
+
             table.insert(bricks, b)
 
             -- Lua's version of the 'continue' statement

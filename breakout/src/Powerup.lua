@@ -1,5 +1,13 @@
 Powerup = Class{}
 
+pType = {
+    ['paddle-shrink'] = 1,
+    ['paddle-grow'] = 2,
+    ['heart'] = 3,
+    ['balls'] = 4,
+    ['key'] = 5
+}
+
 function Powerup:init(x, y)
     self.width = 16
     self.height = 16
@@ -10,7 +18,7 @@ function Powerup:init(x, y)
     self.dy = 40
 
     -- how to select random number from (1, 2, 3, 7, 10)
-    self.type = math.random(4)
+    self.type = math.random(5)
 
     self.remove = false
 end
