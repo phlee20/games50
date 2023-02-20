@@ -198,6 +198,9 @@ function PlayState:calculateMatches()
             self.score = self.score + #match * 50
         end
 
+        -- add time for each match
+        self.timer = self.timer + #matches
+
         -- remove any tiles that matched from the board, making empty spaces
         self.board:removeMatches()
 
