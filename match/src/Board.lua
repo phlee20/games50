@@ -51,6 +51,73 @@ function Board:initializeTiles(level)
         -- a matchless board on start
         self:initializeTiles(level)
     end
+
+    while self:noPotentialMatches() do
+
+        -- recursively initialize if no potential matches exist
+        self:initializeTiles(level)
+    end
+end
+
+--[[
+    Check that potential matches exist within one move
+]]
+function Board:noPotentialMatches()
+    
+    local noMatches = true
+
+    -- horizontal swaps
+    for y = 1, 8 do
+        for x = 1, 7 do
+            -- swap tiles
+            local tempTile = self.tiles[y][x]
+            self.tiles[y][x] = self.tiles[y][x + 1]
+            self.tiles[y][x + 1] = tempTile
+
+            -- check for matches
+            if self:calculateMatches() then
+                noMatches = false
+            end
+            
+            -- revert tiles
+            local tempTile = self.tiles[y][x]
+            self.tiles[y][x] = self.tiles[y][x + 1]
+            self.tiles[y][x + 1] = tempTile
+
+            -- if match is found, return false to start game
+            if not noMatches then
+                return false
+            end
+        end
+    end
+
+    -- vertical swaps
+    for x = 1, 8 do
+        for y = 1, 7 do
+            -- swap tiles
+            local tempTile = self.tiles[y][x]
+            self.tiles[y][x] = self.tiles[y + 1][x]
+            self.tiles[y + 1][x] = tempTile
+
+            -- check for matches
+            if self:calculateMatches() then
+                noMatches = false
+            end
+            
+            -- revert tiles
+            local tempTile = self.tiles[y][x]
+            self.tiles[y][x] = self.tiles[y + 1][x]
+            self.tiles[y + 1][x] = tempTile
+
+            -- if match is found, return false to start game
+            if not noMatches then
+                return false
+            end
+        end
+    end
+
+    -- if no matches are found, returns true to be re-initialized
+    return true
 end
 
 --[[

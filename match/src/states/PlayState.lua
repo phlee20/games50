@@ -160,16 +160,44 @@ function PlayState:update(dt)
 
                 self.board.tiles[newTile.gridY][newTile.gridX] = newTile
 
-                -- tween coordinates between the two so they swap
-                Timer.tween(0.1, {
-                    [self.highlightedTile] = {x = newTile.x, y = newTile.y},
-                    [newTile] = {x = self.highlightedTile.x, y = self.highlightedTile.y}
-                })
+                -- check that match exists
+                local matchExists = self.board:calculateMatches()
+
+                -- only allow swap if match exists
+                if matchExists then
+
+                    -- tween coordinates between the two so they swap
+                    Timer.tween(0.1, {
+                        [self.highlightedTile] = {x = newTile.x, y = newTile.y},
+                        [newTile] = {x = self.highlightedTile.x, y = self.highlightedTile.y}
+                    })
+                    
+                    -- once the swap is finished, we can tween falling blocks as needed
+                    :finish(function()
+                        self:calculateMatches()
+                    end)
                 
-                -- once the swap is finished, we can tween falling blocks as needed
-                :finish(function()
-                    self:calculateMatches()
-                end)
+                -- if match doesn't exist, revert tile positions
+                else
+                    gSounds['error']:play()
+
+                    -- revert grid positions of tiles
+                    local tempX = newTile.gridX
+                    local tempY = newTile.gridY
+
+                    newTile.gridX = self.highlightedTile.gridX
+                    newTile.gridY = self.highlightedTile.gridY
+                    self.highlightedTile.gridX = tempX
+                    self.highlightedTile.gridY = tempY
+
+                    -- revert tiles in the tiles table
+                    self.board.tiles[self.highlightedTile.gridY][self.highlightedTile.gridX] =
+                        self.highlightedTile
+
+                    self.board.tiles[newTile.gridY][newTile.gridX] = newTile
+
+                    self.highlightedTile = nil
+                end
             end
         end
     end
@@ -227,6 +255,11 @@ function PlayState:calculateMatches()
             -- as a result of falling blocks once new blocks have finished falling
             self:calculateMatches()
         end)
+
+        -- check if potential matches exist
+        while self.board:noPotentialMatches() do
+            self.board:initializeTiles(self.level)
+        end
     
     -- if no matches, we can continue playing
     else
