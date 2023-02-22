@@ -74,6 +74,8 @@ end
 
 function BeginGameState:update(dt)
     Timer.update(dt)
+
+    self.board:update(dt)
 end
 
 function BeginGameState:render()

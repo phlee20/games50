@@ -19,12 +19,12 @@ function GenerateTileQuads(atlas)
     local tiles = {}
 
     local x = 0
-    local y = 0
+    local y = 32 -- start second line
 
     local counter = 1
 
-    -- 9 rows of tiles
-    for row = 1, 9 do
+    -- 9 rows of tiles (reduce to 4 rows)
+    for row = 1, 4 do
         
         -- two sets of 6 cols, different tile varietes
         for i = 1, 2 do
@@ -39,7 +39,7 @@ function GenerateTileQuads(atlas)
 
             counter = counter + 1
         end
-        y = y + 32
+        y = y + 64 -- skip line
         x = 0
     end
 
