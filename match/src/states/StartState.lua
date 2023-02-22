@@ -89,7 +89,8 @@ function StartState:update(dt)
                     [self] = {transitionAlpha = 1}
                 }):finish(function()
                     gStateMachine:change('begin-game', {
-                        level = 1
+                        level = 1,
+                        score = 0
                     })
 
                     -- remove color timer from Timer

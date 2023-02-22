@@ -61,13 +61,13 @@ function PlayState:enter(params)
     self.level = params.level
 
     -- spawn a board and place it toward the right
-    self.board = params.board or Board(VIRTUAL_WIDTH - 272, 16)
+    self.board = params.board or Board(VIRTUAL_WIDTH - 272, 16, self.level)
 
     -- grab score from params if it was passed
     self.score = params.score or 0
 
     -- score we have to reach to get to the next level
-    self.scoreGoal = self.level * 1.25 * 1000
+    self.scoreGoal = (self.level^2 + self.level) / 2 * 1.25 * 1000
 end
 
 function PlayState:update(dt)
@@ -195,7 +195,17 @@ function PlayState:calculateMatches()
 
         -- add score for each match
         for k, match in pairs(matches) do
-            self.score = self.score + #match * 50
+
+            -- multiplier for matching same pattern
+            local sumBonus = 0
+
+            -- bonus 10 points for higher level blocks
+            for j, tile in pairs(match) do
+                local bonus = (tile.variety - 1) * 10
+                sumBonus = sumBonus + bonus
+            end
+
+            self.score = self.score + #match * 50 + sumBonus
         end
 
         -- add time for each match
@@ -205,7 +215,7 @@ function PlayState:calculateMatches()
         self.board:removeMatches()
 
         -- gets a table with tween values for tiles that should now fall
-        local tilesToFall = self.board:getFallingTiles()
+        local tilesToFall = self.board:getFallingTiles(self.level)
 
         -- tween new tiles that spawn from the ceiling over 0.25s to fill in
         -- the new upper gaps that exist
