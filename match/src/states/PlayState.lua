@@ -18,6 +18,9 @@
 
 PlayState = Class{__includes = BaseState}
 
+-- game difficulty setting (0.75 - 1.25)
+local difficulty = 1
+
 function PlayState:init()
     
     -- start our transition alpha at full, so we fade in
@@ -67,7 +70,7 @@ function PlayState:enter(params)
     self.score = params.score or 0
 
     -- score we have to reach to get to the next level
-    self.scoreGoal = (self.level^2 + self.level) / 2 * 1.25 * 1000
+    self.scoreGoal = (self.level^2 + self.level) / 2 * difficulty * 1000
 end
 
 function PlayState:update(dt)

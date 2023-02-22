@@ -15,7 +15,7 @@ Board = Class{}
 
 -- game settings
 local tileColours = 8
-local levelUp = 4
+local levelUp = 3
 local shinyProb = 40
 
 function Board:init(x, y, level)
