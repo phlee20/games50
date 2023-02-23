@@ -18,7 +18,7 @@
 
 PlayState = Class{__includes = BaseState}
 
--- game difficulty setting (0.75 - 1.25)
+-- game difficulty setting (0.75 - 1.5)
 local difficulty = 1
 
 function PlayState:init()
@@ -145,6 +145,7 @@ function PlayState:update(dt)
 
         -- right click to deselect tile
         if love.mouse.wasPressed(2) then
+            gSounds['select']:play()
             self.highlightedTile = nil
         end
 
@@ -257,9 +258,9 @@ function PlayState:calculateMatches()
             -- multiplier for matching same pattern
             local sumBonus = 0
 
-            -- bonus 10 points for higher level blocks
+            -- bonus points for higher level blocks (n2 + n) / 2
             for j, tile in pairs(match) do
-                local bonus = (tile.variety - 1) * 10
+                local bonus = (((tile.variety - 1) ^ 2 + tile.variety - 1) / 2) * 10
                 sumBonus = sumBonus + bonus
             end
 

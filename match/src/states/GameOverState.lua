@@ -21,6 +21,10 @@ function GameOverState:enter(params)
 end
 
 function GameOverState:update(dt)
+    if love.keyboard.wasPressed('escape') then
+        love.event.quit()
+    end
+    
     if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') or love.mouse.wasPressed(1) then
         gStateMachine:change('start')
     end
