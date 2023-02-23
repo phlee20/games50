@@ -124,8 +124,33 @@ function PlayState:update(dt)
             gSounds['select']:play()
         end
 
+        -- check that mouse click is within the board
+        local mouseValid = false
+
+        if love.mouse.wasPressed(1) then
+
+            -- convert cursor coordinates to grid positions
+            local mX = math.floor((mouseX - (VIRTUAL_WIDTH - 272)) / 32)
+            local mY = math.floor((mouseY - 16) / 32)
+
+            -- change highlighted tile if the mouse click is valid
+            if mX >= 0 and mX <= 7 and mY >= 0 and mY <= 7 then
+                self.boardHighlightX = mX
+                self.boardHighlightY = mY
+                gSounds['select']:play()
+                mouseValid = true
+            end
+
+        end
+
+        -- right click to deselect tile
+        if love.mouse.wasPressed(2) then
+            self.highlightedTile = nil
+        end
+
         -- if we've pressed enter, to select or deselect a tile...
-        if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+        if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') or mouseValid then
+            
             
             -- if same tile as currently highlighted, deselect
             local x = self.boardHighlightX + 1

@@ -79,8 +79,40 @@ function StartState:update(dt)
             gSounds['select']:play()
         end
 
+        -- check that mouse cursor is on the buttons
+        local mouseValid = false
+        local start = false
+        local quit = false
+
+        -- change highlighted menu item on mouse hover
+        local m1, m2 = love.mouse.getPosition()
+        m1, m2 = push:toGame(m1, m2)
+        if m1 > VIRTUAL_WIDTH / 2 - 25 and
+            m1 < VIRTUAL_WIDTH / 2 + 25 and
+            m2 > VIRTUAL_HEIGHT / 2 + 20 and
+            m2 < VIRTUAL_HEIGHT / 2 + 36 then
+                self.currentMenuItem = 1
+                start = true
+        elseif m1 > VIRTUAL_WIDTH / 2 - 45 and
+            m1 < VIRTUAL_WIDTH / 2 + 45 and
+            m2 > VIRTUAL_HEIGHT / 2 + 45 and
+            m2 < VIRTUAL_HEIGHT / 2 + 61 then
+                self.currentMenuItem = 2
+                quit = true
+        end
+
+        -- switch to another state if mouse if pressed on one of the menu options
+        if love.mouse.wasPressed(1) then
+            if start then
+                self.currentMenuItem = 1
+                mouseValid = true
+            elseif quit then
+                love.event.quit()
+            end
+        end
+
         -- switch to another state via one of the menu options
-        if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+        if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') or mouseValid then
             if self.currentMenuItem == 1 then
                 
                 -- tween, using Timer, the transition rect's alpha to 1, then
