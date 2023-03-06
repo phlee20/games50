@@ -6,7 +6,7 @@ WINDOW_HEIGHT = 720
 
 DEGREES_TO_RADIANS = 0.0174532925199432957
 
-WHEELS = 3
+WHEELS = 11
 BALLS = 500
 
 push = require 'push'
@@ -42,15 +42,21 @@ function love.load()
 
     -- bodies
     groundBody = love.physics.newBody(world, 0, VIRTUAL_HEIGHT - 30, 'static')
+    leftFloorBody = love.physics.newBody(world, 0, VIRTUAL_HEIGHT / 2 + 50, 'static')
+    rightFloorBody = love.physics.newBody(world, VIRTUAL_WIDTH, VIRTUAL_HEIGHT / 2 + 50, 'static')
     leftWallBody = love.physics.newBody(world, 0, 0, 'static')
     rightWallBody = love.physics.newBody(world, VIRTUAL_WIDTH, 0, 'static')
 
     -- shapes
+    leftFloorShape = love.physics.newEdgeShape(0, 0, 200, 20)
+    rightFloorShape = love.physics.newEdgeShape(0, 0, -200, 20)
     edgeShape = love.physics.newEdgeShape(0, 0, VIRTUAL_WIDTH, 0)
     wallShape = love.physics.newEdgeShape(0, 0, 0, VIRTUAL_HEIGHT)
 
     -- fixtures
     groundFixture = love.physics.newFixture(groundBody, edgeShape)
+    leftFloorFixture = love.physics.newFixture(leftFloorBody, leftFloorShape)
+    rightFloorFixture = love.physics.newFixture(rightFloorBody, rightFloorShape)
     leftWallFixture = love.physics.newFixture(leftWallBody, wallShape)
     rightWallFixture = love.physics.newFixture(rightWallBody, wallShape)
 
@@ -61,7 +67,7 @@ function love.load()
 
     for i = 1, WHEELS do
         table.insert(kinematicBodies, love.physics.newBody(world,
-            VIRTUAL_WIDTH / 2 - (30 * (WHEELS / 2 + 1 - i)), math.random(50, 200), 'kinematic'))
+            VIRTUAL_WIDTH / 2 - (40 * (WHEELS / 2 + 1 - i)), math.random(50, 200), 'kinematic'))
         table.insert(kinematicFixtures, love.physics.newFixture(kinematicBodies[i], kinematicShape))
         kinematicBodies[i]:setAngularVelocity(360 * DEGREES_TO_RADIANS)
     end
@@ -97,6 +103,8 @@ function love:draw()
     love.graphics.setColor(1, 0, 0, 1)
     love.graphics.setLineWidth(2)
     love.graphics.line(groundBody:getWorldPoints(edgeShape:getPoints()))
+    love.graphics.line(leftFloorBody:getWorldPoints(leftFloorShape:getPoints()))
+    love.graphics.line(rightFloorBody:getWorldPoints(rightFloorShape:getPoints()))
     
     push:finish()
 end
